@@ -1,45 +1,16 @@
 pipeline {
     agent any
 
-    environment {
-        SONARQUBE_HOME = tool 'SonarQubeScanner'
-    }
-
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
     }
 
     stages {
-        stage('Checkout') {
+        stage('Scan') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Build') {
-            steps {
-                // Adjust the build command according to your project
-                sh './mvnw clean package'
-            }
-        }
-
-        stage('SonarQube Scan') {
-            steps {
-                script {
-                    def scannerHome = tool 'SonarQubeScanner'
-
-                    withSonarQubeEnv(installationName: 'SonarQube') {
-                        sh "${scannerHome}/bin/sonar-scanner"
-                    }
+                withSonarQubeEnv(installationName: 'aq1') {
+                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
                 }
-            }
-        }
-    }
-
-    post {
-        always {
-            script {
-                // Clean up workspace or do any other post-processing
             }
         }
     }
