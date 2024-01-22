@@ -4,10 +4,11 @@ pipeline {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
   stages {
-    stage('Build') {
+    stage('Scan') {
       steps {
-        sh './mvnw clean install site surefire-report:report'
-        sh 'tree'
+      withSonarQubeEnv(installationName: 'aq1') {
+        sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
+        }
       }
     }
   }
