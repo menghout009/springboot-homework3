@@ -1,0 +1,77 @@
+pipeline {
+    agent {
+        docker {
+            image 'maven:3.8.6-jdk-11' // Use a Docker image for Maven with JDK 11
+        }
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5')) // Keep only the last 5 builds
+        timestamps() // Add timestamps to logs
+    }
+
+    parameters {
+        string(name: 'SONAR_ENV', defaultValue: 'sq1', description: 'SonarQube environment to use')
+    }
+
+    stages {
+        stage('Preparation') {
+            steps {
+                echo "Starting the pipeline for ${env.JOB_NAME}"
+                sh './mvnw --version' // Check Maven version
+            }
+        }
+
+        stage('Build and Test') {
+            parallel {
+                stage('Build') {
+                    steps {
+                        echo "Building the project..."
+                        sh './mvnw clean install -DskipTests' // Build without running tests
+                    }
+                }
+                stage('Test') {
+                    steps {
+                        echo "Running tests..."
+                        sh './mvnw test' // Run tests
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                echo "Starting SonarQube Scan..."
+                withSonarQubeEnv("${params.SONAR_ENV ?: 'sq1'}") {
+                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar' 
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                script {
+                    echo "Waiting for SonarQube quality gate results..."
+                    def qualityGate = waitForQualityGate() // Wait for the Quality Gate
+                    if (qualityGate.status != 'OK') {
+                        error "Pipeline failed due to quality gate failure: ${qualityGate.status}"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            slackSend(channel: '#build-status', message: "✅ Build succeeded for ${env.JOB_NAME}")
+            echo "Pipeline completed successfully."
+        }
+        failure {
+            slackSend(channel: '#build-status', message: "❌ Build failed for ${env.JOB_NAME}")
+            echo "Pipeline failed. Check logs for details."
+        }
+        always {
+            echo "Pipeline finished execution."
+        }
+    }
+}
