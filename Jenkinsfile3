@@ -16,8 +16,9 @@ pipeline {
 
         stage('Build and Test') {
             steps {
-                echo "Building and testing the project..."
-                sh './mvnw clean install' // Clean and install (compile the classes)
+                echo "Building the project..."
+                sh './mvnw clean install' // Clean and install (compiling the classes)
+                echo "Running tests..."
                 sh './mvnw test' // Run tests
             }
         }
@@ -26,7 +27,7 @@ pipeline {
             steps {
                 echo "Starting SonarQube scan..."
                 withSonarQubeEnv('SonarQube') { // Use the configured SonarQube environment 'sq1'
-                    sh './mvnw sonar:sonar -Dsonar.java.binaries=target/classes' // Scan after install
+                    sh './mvnw sonar:sonar -Dsonar.java.binaries=target/classes' // Scan after build
                 }
             }
         }
