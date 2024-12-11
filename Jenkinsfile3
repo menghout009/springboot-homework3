@@ -2,36 +2,31 @@ pipeline {
     agent any
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '5'))
-    }
-
-    environment {
-        SONAR_HOST_URL = 'http://34.87.163.238:9000'
-        SONAR_TOKEN = 'squ_8d3fb424b99a73092dd486c3052cbb4ff670722c'
+        buildDiscarder(logRotator(numToKeepStr: '5')) // Keep only the last 5 builds
+        timestamps() // Add timestamps to logs
     }
 
     stages {
-        stage('Build') {
+        stage('Preparation') {
             steps {
-                script {
-                    // Run the Maven build to generate compiled classes
-                    sh './mvnw clean package'
-                }
+                echo "Starting the pipeline for ${env.JOB_NAME}"
+                sh './mvnw --version' // Check Maven version
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                echo "Building and testing the project..."
+                sh './mvnw clean install' // Clean and install (compile the classes)
+                sh './mvnw test' // Run tests
             }
         }
 
         stage('SonarQube Scan') {
             steps {
-                script {
-                    // Run the SonarScanner command
-                    sh """
-                    sonar-scanner \
-                      -Dsonar.projectKey=sq1 \
-                      -Dsonar.sources=. \
-                      -Dsonar.java.binaries=target/classes \
-                      -Dsonar.host.url=${SONAR_HOST_URL} \
-                      -Dsonar.token=${SONAR_TOKEN}
-                    """
+                echo "Starting SonarQube scan..."
+                withSonarQubeEnv('SonarQube') { // Use the configured SonarQube environment 'sq1'
+                    sh './mvnw sonar:sonar -Dsonar.java.binaries=target/classes' // Scan after install
                 }
             }
         }
@@ -39,21 +34,25 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 script {
-                    // Wait for the SonarQube quality gate result
-                    timeout(time: 1, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
+                    echo "Waiting for SonarQube quality gate results..."
+                    def qualityGate = waitForQualityGate() // Wait for the Quality Gate
+                    if (qualityGate.status != 'OK') {
+                        error "Pipeline failed due to quality gate failure: ${qualityGate.status}"
                     }
                 }
             }
         }
     }
-    
+
     post {
         success {
-            echo 'SonarQube analysis was successful!'
+            echo "✅ Pipeline completed successfully for ${env.JOB_NAME}."
         }
         failure {
-            echo 'SonarQube analysis failed.'
+            echo "❌ Pipeline failed. Check logs for details."
+        }
+        always {
+            echo "Pipeline execution finished."
         }
     }
 }
