@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'linux' }
+    agent any
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '5')) // Keep only the last 5 builds
