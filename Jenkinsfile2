@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Scan') {
             steps {
-                withSonarQubeEnv('sq1') { // Use SonarQube environment configured as 'sq1'
+                withSonarQubeEnv('SonarQube') { // Use SonarQube environment configured as 'sq1'
                     sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar' 
                     // Run the SonarQube scan using the specified Maven plugin version
                 }
