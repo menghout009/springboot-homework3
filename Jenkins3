@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+
+    environment {
+        SONAR_HOST_URL = 'http://34.87.163.238:9000'
+        SONAR_TOKEN = 'squ_8d3fb424b99a73092dd486c3052cbb4ff670722c'
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    // Run the Maven build to generate compiled classes
+                    sh './mvnw clean package'
+                }
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                script {
+                    // Run the SonarScanner command
+                    sh """
+                    sonar-scanner \
+                      -Dsonar.projectKey=sq1 \
+                      -Dsonar.sources=. \
+                      -Dsonar.java.binaries=target/classes \
+                      -Dsonar.host.url=${SONAR_HOST_URL} \
+                      -Dsonar.token=${SONAR_TOKEN}
+                    """
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                script {
+                    // Wait for the SonarQube quality gate result
+                    timeout(time: 1, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'SonarQube analysis was successful!'
+        }
+        failure {
+            echo 'SonarQube analysis failed.'
+        }
+    }
+}
