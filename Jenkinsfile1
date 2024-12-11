@@ -1,17 +1,9 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.8.6-jdk-11' // Use a Docker image for Maven with JDK 11
-        }
-    }
+    agent { label 'linux' }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '5')) // Keep only the last 5 builds
         timestamps() // Add timestamps to logs
-    }
-
-    parameters {
-        string(name: 'SONAR_ENV', defaultValue: 'sq1', description: 'SonarQube environment to use')
     }
 
     stages {
@@ -23,27 +15,17 @@ pipeline {
         }
 
         stage('Build and Test') {
-            parallel {
-                stage('Build') {
-                    steps {
-                        echo "Building the project..."
-                        sh './mvnw clean install -DskipTests' // Build without running tests
-                    }
-                }
-                stage('Test') {
-                    steps {
-                        echo "Running tests..."
-                        sh './mvnw test' // Run tests
-                    }
-                }
+            steps {
+                echo "Building and testing the project..."
+                sh './mvnw clean test' // Build and run tests
             }
         }
 
         stage('SonarQube Scan') {
             steps {
-                echo "Starting SonarQube Scan..."
-                withSonarQubeEnv("${params.SONAR_ENV ?: 'sq1'}") {
-                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar' 
+                echo "Starting SonarQube scan..."
+                withSonarQubeEnv('sq1') { // Use the configured SonarQube environment 'sq1'
+                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
                 }
             }
         }
@@ -63,15 +45,13 @@ pipeline {
 
     post {
         success {
-            slackSend(channel: '#build-status', message: "✅ Build succeeded for ${env.JOB_NAME}")
-            echo "Pipeline completed successfully."
+            echo "✅ Pipeline completed successfully for ${env.JOB_NAME}."
         }
         failure {
-            slackSend(channel: '#build-status', message: "❌ Build failed for ${env.JOB_NAME}")
-            echo "Pipeline failed. Check logs for details."
+            echo "❌ Pipeline failed. Check logs for details."
         }
         always {
-            echo "Pipeline finished execution."
+            echo "Pipeline execution finished."
         }
     }
 }
