@@ -1,0 +1,18 @@
+pipeline {
+    agent { label 'linux' }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5')) // Keep only the last 5 builds
+    }
+
+    stages {
+        stage('Scan') {
+            steps {
+                withSonarQubeEnv('sq1') { // Use SonarQube environment configured as 'sq1'
+                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar' 
+                    // Run the SonarQube scan using the specified Maven plugin version
+                }
+            }
+        }
+    }
+}
