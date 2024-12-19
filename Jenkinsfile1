@@ -16,16 +16,18 @@ pipeline {
 
         stage('Build and Test') {
             steps {
-                echo "Building and testing the project..."
-                sh './mvnw clean test' // Build and run tests
+                echo "Building the project..."
+                sh './mvnw clean install' // Clean and install (compiling the classes)
+                echo "Running tests..."
+                sh './mvnw test' // Run tests
             }
         }
 
         stage('SonarQube Scan') {
             steps {
                 echo "Starting SonarQube scan..."
-                withSonarQubeEnv('SonarQube') { // Use the configured SonarQube environment 'sq1'
-                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.java.binaries=target/classes'
+                withSonarQubeEnv('SonarQube') { // Use the configured SonarQube environment 'SonarQube'
+                    sh './mvnw sonar:sonar -Dsonar.java.binaries=target/classes' // Scan after build
                 }
             }
         }
@@ -34,9 +36,12 @@ pipeline {
             steps {
                 script {
                     echo "Waiting for SonarQube quality gate results..."
-                    def qualityGate = waitForQualityGate() // Wait for the Quality Gate
-                    if (qualityGate.status != 'OK') {
-                        error "Pipeline failed due to quality gate failure: ${qualityGate.status}"
+                    timeout(time: 30, unit: 'MINUTES') { // Set a timeout of 30 minutes
+                        def qualityGate = waitForQualityGate() // Wait for the quality gate results
+                        if (qualityGate.status != 'OK') {
+                            error "Pipeline failed due to quality gate failure: ${qualityGate.status}"
+                        }
+                        echo "SonarQube analysis results available at: ${env.BUILD_URL}/sonarqube"
                     }
                 }
             }
