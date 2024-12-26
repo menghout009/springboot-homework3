@@ -53,8 +53,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Pipeline completed successfully for detail ${env.JOB_NAME}."
-            echo "SonarQube analysis results available at: ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
+            echo "✅ Pipeline completed successfully. >> for detail  ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
         }
         failure {
             echo "❌ Pipeline failed. Check logs for details. >> ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
