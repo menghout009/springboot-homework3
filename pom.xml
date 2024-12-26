@@ -15,13 +15,7 @@
     <description>SPRING_HOMEWORK003</description>
     <properties>
         <java.version>17</java.version>
-             <!--
-<sonar.host.url>http://localhost:9000</sonar.host.url>
-<sonar.login>sqp_4f6322b22629cfcb04a658f912e7b397ec012a9e</sonar.login>
-<sonar.projectKey>springboot</sonar.projectKey>
-<sonar.projectName>springboot</sonar.projectName>
-<sonar.projectVersion>1.0</sonar.projectVersion>
--->
+             
     </properties>
     <dependencies>
 
