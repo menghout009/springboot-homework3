@@ -26,14 +26,19 @@ pipeline {
             }
         }
 
-        stage('SonarQube Scan') {
-            steps {
-                echo "Starting SonarQube scan..."
-                withSonarQubeEnv('SQ1') { // Use the configured SonarQube environment 'SonarQube'
-                    sh './mvnw sonar:sonar -Dsonar.java.binaries=target/classes' // Scan after build
-                }
-            }
+stage('SonarQube Scan') {
+    steps {
+        echo "Starting SonarQube scan..."
+        withSonarQubeEnv('SonarQube') { // Use the configured SonarQube environment 'SonarQube'
+            sh '''
+                npm install
+                npm run build
+                npm run test -- --coverage
+                npx sonar-scanner
+            '''
         }
+    }
+}
 
         stage('Quality Gate') {
             steps {
