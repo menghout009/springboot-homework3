@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        SONARQUBE_URL = "http://34.87.163.238:9000" // your host
+        SONARQUBE_URL = "http://35.240.244.202:9000" // your host
         PROJECT_KEY = "com.example%3ASPRING_HOMEWORK003" // your sonarqube project name
     }
     options {
