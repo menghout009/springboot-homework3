@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+    environment {
+        SONARQUBE_URL = "http://34.87.163.238:9000" // your host
+        PROJECT_KEY = "com.example%3ASPRING_HOMEWORK003" // your sonarqube project name
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5')) // Keep only the last 5 builds
+        timestamps() // Add timestamps to logs
+    }
+
+    stages {
+        stage('Preparation') {
+            steps {
+                echo "Starting the pipeline for ${env.JOB_NAME}"
+                sh './mvnw --version' // Check Maven version
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                echo "Building the project..."
+                sh './mvnw clean install' // Clean and install (compiling the classes)
+                echo "Running tests..."
+                sh './mvnw test' // Run tests
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                echo "Starting SonarQube scan..."
+                withSonarQubeEnv('SonarQube') { // Use the configured SonarQube environment 'SonarQube'
+                    sh './mvnw sonar:sonar -Dsonar.java.binaries=target/classes' // Scan after build
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                script {
+                    echo "Waiting for SonarQube quality gate results..."
+                    timeout(time: 30, unit: 'MINUTES') { // Set a timeout of 30 minutes
+                        def qualityGate = waitForQualityGate() // Wait for the quality gate results
+                        if (qualityGate.status != 'OK') {
+                            error "Pipeline failed due to quality gate failure: ${qualityGate.status}"
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Pipeline completed successfully."
+            echo "🔗 For detail >> ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
+        }
+        failure {
+            echo "❌ Pipeline failed. Check logs for details. >> ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
+            
+        }
+        always {
+            echo "Pipeline execution finished."
+        }
+    }
+}
