@@ -62,10 +62,10 @@ pipeline {
     post {
         success {
             echo "✅ Pipeline completed successfully."
-            echo "🔗 For detail >> ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
+            
         }
         failure {
-            echo "❌ Pipeline failed. Check logs for details. >> ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
+            echo "❌ Pipeline failed.
         }
         always {
             echo "Pipeline execution finished."
