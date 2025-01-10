@@ -16,17 +16,10 @@
     <properties>
         <java.version>17</java.version>  
 
-<!-- Intentionally Vulnerable Configuration -->
-<sonar.host.url>http://localhost:9000</sonar.host.url>
-<sonar.projectKey>springboot</sonar.projectKey>
-<sonar.projectName>springboot</sonar.projectName>
-<sonar.projectVersion>1.0</sonar.projectVersion>
-
-<!-- Hardcoded Token (Intentionally unsafe for testing) -->
-<auth.token>ghp_FakeTokenForSonarQubeTesting12345</auth.token>
-<db.password>mySuperSecretPassword</db.password>
-<aws.accessKeyId>AKIAFAKEACCESSKEY12345</aws.accessKeyId>
-<aws.secretKey>FakeAWSSecretKey12345</aws.secretKey>
+    <!-- SonarQube Configuration -->
+    <sonar.projectKey>springboot</sonar.projectKey>
+    <!-- Hardcoded Secret for Testing -->
+    <db.password>superSecret123</db.password>
              
     </properties>
     <dependencies>
