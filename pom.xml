@@ -16,10 +16,7 @@
     <properties>
         <java.version>17</java.version>  
 
-    <!-- SonarQube Configuration -->
-    <sonar.projectKey>springboot</sonar.projectKey>
-    <!-- Hardcoded Secret for Testing -->
-    <db.password>superSecret123</db.password>
+<!--    <sonar.login>sqp_3e82a25ba523791469e1fed081b4748366e0c07e</sonar.login> -->
              
     </properties>
     <dependencies>
