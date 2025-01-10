@@ -14,6 +14,8 @@ pipeline {
             steps {
                 echo "Cleaning workspace before starting the pipeline..."
                 cleanWs() // Clear workspace
+                echo "Re-cloning repository..."
+                checkout scm // Explicitly clone the repository again
             }
         }
 
