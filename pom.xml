@@ -15,15 +15,11 @@
     <description>SPRING_HOMEWORK003</description>
     <properties>
         <java.version>17</java.version>  
+<!--     this is for test add dependency      -->
 
-<!--    <sonar.login>sqp_3e82a25ba523791469e1fed081b4748366e0c07e</sonar.login> -->
-
-<!--              sonar-scanner \
-  -Dsonar.projectKey=React-demo \
-  -Dsonar.sources=. \
-  -Dsonar.host.url=http://34.87.163.238:9000 \
-  -Dsonar.token=sqp_a386b0c0dff145a0cef7b80fb83251637cfc2a87 -->
              
+             
+<!--     this is for test add dependency      -->
     </properties>
     <dependencies>
 
