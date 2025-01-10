@@ -10,17 +10,17 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                echo "Cleaning workspace before starting the pipeline..."
+                cleanWs() // Clear workspace
+            }
+        }
+
         stage('Preparation') {
             steps {
                 echo "Starting the pipeline for ${env.JOB_NAME}"
                 sh './mvnw --version' // Check Maven version
-            }
-        }
-
-        stage('Clean Workspace') {
-            steps {
-                echo "Cleaning workspace before proceeding..."
-                cleanWs() // Clear workspace using Jenkins built-in function
             }
         }
 
