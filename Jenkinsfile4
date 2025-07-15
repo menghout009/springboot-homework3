@@ -1,11 +1,24 @@
 pipeline {
     agent any
-
+    environment {
+        SONARQUBE_URL = "http://34.143.241.122:9000/" // your host
+        PROJECT_KEY = "com.example%3ASPRING_HOMEWORK003" // your SonarQube project name
+    }
     options {
         buildDiscarder(logRotator(numToKeepStr: '5')) // Keep only the last 5 builds
+        timestamps() // Add timestamps to logs
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                echo "Cleaning workspace before starting the pipeline..."
+                cleanWs() // Clear workspace
+                echo "Re-cloning repository..."
+                checkout scm // Explicitly clone the repository again
+            }
+        }
+
         stage('Preparation') {
             steps {
                 echo "Starting the pipeline for ${env.JOB_NAME}"
@@ -25,7 +38,7 @@ pipeline {
         stage('SonarQube Scan') {
             steps {
                 echo "Starting SonarQube scan..."
-                withSonarQubeEnv('SonarQube') { // Use the configured SonarQube environment 'sq1'
+                withSonarQubeEnv('SonarQube') { // Use the configured SonarQube environment 'SonarQube'
                     sh './mvnw sonar:sonar -Dsonar.java.binaries=target/classes' // Scan after build
                 }
             }
@@ -35,7 +48,7 @@ pipeline {
             steps {
                 script {
                     echo "Waiting for SonarQube quality gate results..."
-                    timeout(time: 30, unit: 'MINUTES') { // Set a timeout of 5 minutes
+                    timeout(time: 30, unit: 'MINUTES') { // Set a timeout of 30 minutes
                         def qualityGate = waitForQualityGate() // Wait for the quality gate results
                         if (qualityGate.status != 'OK') {
                             error "Pipeline failed due to quality gate failure: ${qualityGate.status}"
@@ -48,10 +61,11 @@ pipeline {
 
     post {
         success {
-            echo "✅ Pipeline completed successfully for ${env.JOB_NAME}."
+            echo "✅ Pipeline completed successfully."
+            echo "🔗 For detail >> ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
         }
         failure {
-            echo "❌ Pipeline failed. Check logs for details."
+            echo "❌ Pipeline failed. Check logs for details. >> ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
         }
         always {
             echo "Pipeline execution finished."
