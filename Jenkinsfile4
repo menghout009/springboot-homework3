@@ -1,9 +1,5 @@
 pipeline {
     agent any
-    environment {
-        SONARQUBE_URL = "http://34.143.241.122:9000/" // your host
-        PROJECT_KEY = "com.example%3ASPRING_HOMEWORK003" // your SonarQube project name
-    }
     options {
         buildDiscarder(logRotator(numToKeepStr: '5')) // Keep only the last 5 builds
         
@@ -62,10 +58,10 @@ pipeline {
     post {
         success {
             echo "✅ Pipeline completed successfully."
-            echo "🔗 For detail >> ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
+            
         }
         failure {
-            echo "❌ Pipeline failed. Check logs for details. >> ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}"
+            echo "❌ Pipeline failed."
         }
         always {
             echo "Pipeline execution finished."
