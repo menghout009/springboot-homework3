@@ -22,38 +22,27 @@ pipeline {
                 checkout scm // Explicitly clone the repository again
             }
         }
-stage('Set JDK') {
-            steps {
-                sh '''
-                    export JAVA_HOME=/usr/lib/jvm/openjdk-17
-                    export PATH=$JAVA_HOME/bin:$PATH
-                    java -version
-                '''
-            }
-        }
+stage('Build with JDK 17') {
+  steps {
+    sh '''
+      echo "🔧 Setting JAVA_HOME to JDK 17..."
+      export JAVA_HOME=/usr/lib/jvm/openjdk-17
+      export PATH=$JAVA_HOME/bin:$PATH
 
-         stage('Check Java Version') {
-              steps {
-                sh 'echo $JAVA_HOME'
-                sh 'java -version'
-              }
-            }
+      echo "✅ JAVA_HOME is set to: $JAVA_HOME"
+      java -version
 
-        stage('Preparation') {
-            steps {
-                echo "Starting the pipeline for ${env.JOB_NAME}"
-                sh './mvnw --version' // Check Maven version
-            }
-        }
+      echo "🔍 Checking Maven wrapper version..."
+      ./mvnw --version
 
-        stage('Build and Test') {
-            steps {
-                echo "Building the project..."
-                sh './mvnw clean install' // Clean and install (compiling the classes)
-                echo "Running tests..."
-                sh './mvnw test' // Run tests
-            }
-        }
+      echo "🛠️ Building the project..."
+      ./mvnw clean install
+
+      echo "🧪 Running tests..."
+      ./mvnw test
+    '''
+  }
+}
 
         stage('SonarQube Scan') {
             steps {
