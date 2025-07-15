@@ -2,7 +2,7 @@ pipeline {
     agent any
     tools {
         jdk 'JDK'
-        maven 'maven' // if you’ve configured Maven too
+        maven 'mvn' // if you’ve configured Maven too
     }
     environment {
         SONARQUBE_URL = "http://34.87.145.53:9000" // your host
