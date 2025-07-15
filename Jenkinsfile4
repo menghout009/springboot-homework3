@@ -22,6 +22,15 @@ pipeline {
                 checkout scm // Explicitly clone the repository again
             }
         }
+stage('Set JDK') {
+            steps {
+                sh '''
+                    export JAVA_HOME=/usr/lib/jvm/openjdk-17
+                    export PATH=$JAVA_HOME/bin:$PATH
+                    java -version
+                '''
+            }
+        }
 
          stage('Check Java Version') {
               steps {
