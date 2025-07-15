@@ -19,6 +19,13 @@ pipeline {
             }
         }
 
+         stage('Check Java Version') {
+              steps {
+                sh 'echo $JAVA_HOME'
+                sh 'java -version'
+              }
+            }
+
         stage('Preparation') {
             steps {
                 echo "Starting the pipeline for ${env.JOB_NAME}"
