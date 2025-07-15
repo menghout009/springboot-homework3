@@ -15,9 +15,6 @@
     <description>SPRING_HOMEWORK003</description>
     <properties>
         <java.version>17</java.version>  
-<!--     this is for test add dependency      -->
-             
-<!--     this is for test add dependency      -->
     </properties>
     <dependencies>
 
