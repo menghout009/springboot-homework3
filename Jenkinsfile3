@@ -3,7 +3,7 @@ pipeline {
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '5')) // Keep only the last 5 builds
-        timestamps() // Add timestamps to logs
+        #timestamps() // Add timestamps to logs
     }
 
     stages {
